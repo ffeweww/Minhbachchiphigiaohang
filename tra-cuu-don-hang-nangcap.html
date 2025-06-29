@@ -1,0 +1,122 @@
+
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Tra cứu & Tạo đơn hàng</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-rose-50 min-h-screen flex items-center justify-center p-6">
+
+  <div class="w-full max-w-2xl bg-white shadow-xl rounded-2xl p-8 space-y-6">
+    <h2 class="text-2xl font-bold text-rose-700 flex items-center gap-2">
+      💌 Quản lý đơn hàng dễ thương
+    </h2>
+
+    <!-- Form tạo đơn hàng -->
+    <div class="grid grid-cols-1 gap-4">
+      <input id="maMoi" type="text" placeholder="Mã vận đơn (VD: GH001)" class="border p-2 rounded" />
+      <input id="tenKhach" type="text" placeholder="Tên khách hàng (VD: Bảo An)" class="border p-2 rounded" oninput="tuDongDiaChi()" />
+      <input id="diaChi" type="text" placeholder="Địa chỉ giao hàng" class="border p-2 rounded bg-gray-100" readonly />
+      <input id="khoangCach" type="text" placeholder="Khoảng cách (km)" class="border p-2 rounded bg-gray-100" readonly />
+      <input id="trangThai" type="text" value="Đang xử lý" class="border p-2 rounded bg-gray-100" readonly />
+      <input id="khoiLuong" type="number" placeholder="Khối lượng (kg)" class="border p-2 rounded" />
+      <button onclick="themDon()" class="bg-rose-600 text-white py-2 rounded-xl hover:bg-rose-700 transition">➕ Tạo đơn hàng</button>
+    </div>
+
+    <!-- Tra cứu đơn hàng -->
+    <div class="border-t pt-6">
+      <h3 class="text-lg font-semibold text-rose-600 mb-2">🔍 Tra cứu đơn hàng</h3>
+      <div class="flex flex-col gap-2 sm:flex-row sm:items-center">
+        <input id="maTraCuu" type="text" placeholder="Nhập mã vận đơn" class="border p-2 rounded flex-1" />
+        <button onclick="traCuu()" class="bg-rose-500 text-white px-4 py-2 rounded hover:bg-rose-600">Tra cứu</button>
+      </div>
+      <div class="mt-4 p-4 bg-rose-100 rounded-xl" id="ketQua"></div>
+    </div>
+  </div>
+
+<script>
+const khachHang = {
+  "Bảo An": {
+    diaChi: "Nhà Số 9 Ngõ 2 Đường Quán Cả, X.Hát Môn, H.Phúc Thọ, TP.Hà Nội",
+    khoangCach: 1726
+  },
+  "Minh Khuê": {
+    diaChi: "5/32 Đường Khiếu Năng Tĩnh, P.An Lạc A, Q.Bình Tân, TP.Hồ Chí Minh",
+    khoangCach: 8
+  },
+  "Gia Hưng": {
+    diaChi: "18/22 Đường số 1B, P.Bình Hưng Hoà A, Q.Bình Tân, TP.Hồ Chí Minh",
+    khoangCach: 10
+  },
+  "Tường Vy": {
+    diaChi: "Ấp 4, X.Bình Hàng Trung, H.Cao Lãnh, T.Đồng Tháp",
+    khoangCach: 165
+  },
+  "Khánh Linh": {
+    diaChi: "Cổng A Công ty LG Innotek Việt Nam Hải Phòng, X.An Hoà, H.An Dương, TP.Hải Phòng",
+    khoangCach: 1576
+  }
+};
+
+const donHang = {
+  "GH001": { ten: "Bảo An", diaChi: khachHang["Bảo An"].diaChi, khoangCach: 1726, khoiLuong: 5, trangThai: "Đang giao" },
+  "GH002": { ten: "Minh Khuê", diaChi: khachHang["Minh Khuê"].diaChi, khoangCach: 8, khoiLuong: 3, trangThai: "Đang xử lý" },
+  "GH003": { ten: "Gia Hưng", diaChi: khachHang["Gia Hưng"].diaChi, khoangCach: 10, khoiLuong: 7, trangThai: "Đã giao" },
+  "GH004": { ten: "Tường Vy", diaChi: khachHang["Tường Vy"].diaChi, khoangCach: 165, khoiLuong: 4, trangThai: "Đang giao" },
+  "GH005": { ten: "Khánh Linh", diaChi: khachHang["Khánh Linh"].diaChi, khoangCach: 1576, khoiLuong: 6, trangThai: "Chờ lấy hàng" }
+};
+
+function tuDongDiaChi() {
+  const ten = document.getElementById("tenKhach").value.trim();
+  const diaChi = document.getElementById("diaChi");
+  const kc = document.getElementById("khoangCach");
+  if (khachHang[ten]) {
+    diaChi.value = khachHang[ten].diaChi;
+    kc.value = khachHang[ten].khoangCach;
+  } else {
+    diaChi.value = "";
+    kc.value = "";
+  }
+}
+
+function themDon() {
+  const ma = document.getElementById("maMoi").value.trim().toUpperCase();
+  const ten = document.getElementById("tenKhach").value.trim();
+  const diaChi = document.getElementById("diaChi").value.trim();
+  const khoangCach = parseFloat(document.getElementById("khoangCach").value);
+  const khoiLuong = parseFloat(document.getElementById("khoiLuong").value);
+  const trangThai = "Đang xử lý";
+
+  if (!ma || !ten || !diaChi || isNaN(khoangCach) || isNaN(khoiLuong)) {
+    alert("Vui lòng nhập đầy đủ thông tin!");
+    return;
+  }
+
+  donHang[ma] = { ten, diaChi, khoangCach, khoiLuong, trangThai };
+  alert("✅ Đơn hàng đã được thêm!");
+}
+
+function traCuu() {
+  const ma = document.getElementById("maTraCuu").value.trim().toUpperCase();
+  const ketQua = document.getElementById("ketQua");
+  const diemLay = "246 Đinh Bộ Lĩnh, P.26, Bình Thạnh";
+  if (donHang[ma]) {
+    const d = donHang[ma];
+    const phi = (d.khoangCach * 1000 + d.khoiLuong * 2000).toLocaleString("vi-VN") + " VND";
+    ketQua.innerHTML = `
+      <b>Khách hàng:</b> ${d.ten}<br>
+      <b>Điểm lấy hàng:</b> ${diemLay}<br>
+      <b>Địa chỉ giao:</b> ${d.diaChi}<br>
+      <b>Trạng thái:</b> ${d.trangThai}<br>
+      <b>Phí giao hàng:</b> ${phi}
+    `;
+  } else {
+    ketQua.innerHTML = `❌ Không tìm thấy mã đơn <b>${ma}</b>`;
+  }
+}
+</script>
+
+</body>
+</html>
